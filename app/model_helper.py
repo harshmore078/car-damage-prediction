@@ -4,6 +4,7 @@ import torch
 from torch import nn
 from torchvision import models, transforms
 from PIL import Image
+from huggingface_hub import hf_hub_download
 
 trained_model = None
 class_names = ['Front Breakage', 'Front Crushed', 'Front Normal', 'Rear Breakage', 'Rear Crushed', 'Rear Normal']
@@ -45,16 +46,18 @@ def predict(image_path):
     global trained_model
 
     if trained_model is None:
-        # Project root: Car-Damage-Prediction/
-        BASE_DIR = Path(__file__).resolve().parent.parent
-
-        # Path to the trained model
-        MODEL_PATH = BASE_DIR / "model" / "damage_detection_saved_model.pth"
+        # Download the trained model from Hugging Face
+        MODEL_PATH = hf_hub_download(
+            repo_id="harsh-more-31/car-damage-prediction-model",
+            filename="damage_detection_saved_model.pth",
+            repo_type="model"
+        )
 
         # Load the trained model
-        trained_model = CarClassifierResNet()
-        trained_model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+        trained_model = CarClassifierResNet().to(device)
+        trained_model.load_state_dict(torch.load(MODEL_PATH, map_location=device, weights_only=True))
         trained_model.eval()
+
 
     with torch.no_grad():
         output = trained_model(image_tensor)
