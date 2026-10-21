@@ -1,14 +1,19 @@
+
 import streamlit as st
+import tempfile
 from model_helper import predict
 
 st.title("Vehicle Damage Detection")
 
-uploaded_file = st.file_uploader("Upload the file", type=["jpg", "png"])
+uploaded_file = st.file_uploader("Upload the file", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
-    image_path = "temp_file.jpg"
-    with open(image_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
-        st.image(uploaded_file, caption="Uploaded File", use_container_width=True)
-        prediction = predict(image_path)
-        st.info(f"Predicted Class: {prediction}")
+    st.image(uploaded_file, caption="Uploaded File", width="stretch")
+
+    # Save the uploaded image to a temporary file
+    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
+        temp_file.write(uploaded_file.getvalue())
+        image_path = temp_file.name
+
+    prediction = predict(image_path)
+    st.info(f"Predicted Class: {prediction}")
