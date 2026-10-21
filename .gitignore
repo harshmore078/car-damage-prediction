@@ -1,0 +1,4 @@
+__pycache__/
+*.py[cod]
+app/temp_file.jpg
+model/
